@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Entregas</title>
+    <link rel="stylesheet" href="main.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Controle de Entregas</h1>
+        
+        <div class="form-section">
+            <h2>Cadastrar Nova Loja</h2>
+            <div class="form-group">
+                <label for="nomeLoja">Nome da Loja:</label>
+                <input type="text" id="nomeLoja" placeholder="Digite o nome da loja">
+            </div>
+            <div class="form-group">
+                <label for="valorFixo">Valor Fixo por Entrega:</label>
+                <input type="number" id="valorFixo" placeholder="Digite o valor fixo" step="0.01">
+            </div>
+            <button id="btnCadastrar" class="btn-primary">Cadastrar Loja</button>
+        </div>
+
+        <div class="form-section">
+            <h2>Registrar Entrega</h2>
+            <div class="form-group">
+                <label for="selectLoja">Selecione a Loja:</label>
+                <select id="selectLoja">
+                    <option value="">Selecione uma loja</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="quantidade">Quantidade de Entregas:</label>
+                <input type="number" id="quantidade" placeholder="Digite a quantidade" min="1" value="1">
+            </div>
+            <button id="btnRegistrar" class="btn-success">Registrar Entrega</button>
+        </div>
+
+        <div class="buttons-container">
+            <button id="btnResetar" class="btn-danger">Resetar Tudo</button>
+            <button id="btnExportar" class="btn-secondary">Exportar para TXT</button>
+        </div>
+
+        <div id="lista-lojas" class="lojas-container">
+            <!-- As lojas serão listadas aqui dinamicamente -->
+        </div>
+
+        <div id="total-geral" class="summary">
+            <h2>Resumo Geral</h2>
+            <div class="summary-item">
+                <span>Total de Lojas:</span>
+                <span id="total-lojas">0</span>
+            </div>
+            <div class="summary-item">
+                <span>Total de Entregas:</span>
+                <span id="total-entregas">0</span>
+            </div>
+            <div class="summary-item">
+                <span>Valor Total:</span>
+                <span id="valor-total">R$ 0,00</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>
