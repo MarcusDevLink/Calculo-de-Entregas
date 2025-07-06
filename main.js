@@ -1,5 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // Elementos do DOM
+document.addEventListener('DOMContentLoaded', function () {
     const nomeLojaInput = document.getElementById('nomeLoja');
     const valorFixoInput = document.getElementById('valorFixo');
     const btnCadastrar = document.getElementById('btnCadastrar');
@@ -13,18 +12,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const totalEntregasSpan = document.getElementById('total-entregas');
     const valorTotalSpan = document.getElementById('valor-total');
 
-    // Carregar dados do localStorage ou inicializar
     let lojas = JSON.parse(localStorage.getItem('lojas')) || [];
     let totalEntregas = parseInt(localStorage.getItem('totalEntregas')) || 0;
     let valorTotal = parseFloat(localStorage.getItem('valorTotal')) || 0;
 
-    // Atualizar a interface
     atualizarSelectLojas();
     atualizarListaLojas();
     atualizarResumo();
 
-    // Cadastrar nova loja
-    btnCadastrar.addEventListener('click', function() {
+    btnCadastrar.addEventListener('click', function () {
         const nome = nomeLojaInput.value.trim();
         const valor = parseFloat(valorFixoInput.value);
 
@@ -33,7 +29,6 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Verificar se loja já existe
         if (lojas.some(loja => loja.nome.toLowerCase() === nome.toLowerCase())) {
             alert('Uma loja com esse nome já está cadastrada!');
             return;
@@ -57,9 +52,8 @@ document.addEventListener('DOMContentLoaded', function() {
         nomeLojaInput.focus();
     });
 
-    // Registrar entrega
-    btnRegistrar.addEventListener('click', function() {
-        const indiceLoja = selectLoja.selectedIndex - 1; // Subtrai 1 por causa da opção padrão
+    btnRegistrar.addEventListener('click', function () {
+        const indiceLoja = selectLoja.selectedIndex - 1;
         const quantidade = parseInt(quantidadeInput.value);
 
         if (indiceLoja < 0 || indiceLoja >= lojas.length) {
@@ -85,8 +79,7 @@ document.addEventListener('DOMContentLoaded', function() {
         quantidadeInput.value = '1';
     });
 
-    // Resetar tudo
-    btnResetar.addEventListener('click', function() {
+    btnResetar.addEventListener('click', function () {
         if (confirm('Tem certeza que deseja resetar todos os dados? Esta ação não pode ser desfeita.')) {
             lojas = [];
             totalEntregas = 0;
@@ -98,8 +91,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Exportar para TXT
-    btnExportar.addEventListener('click', function() {
+    btnExportar.addEventListener('click', function () {
         if (lojas.length === 0) {
             alert('Não há dados para exportar.');
             return;
@@ -120,7 +112,6 @@ document.addEventListener('DOMContentLoaded', function() {
         texto += `Total de entregas: ${totalEntregas}\n`;
         texto += `Valor total: R$ ${valorTotal.toFixed(2)}\n`;
 
-        // Criar arquivo e download
         const blob = new Blob([texto], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -132,7 +123,6 @@ document.addEventListener('DOMContentLoaded', function() {
         URL.revokeObjectURL(url);
     });
 
-    // Funções auxiliares
     function salvarDados() {
         localStorage.setItem('lojas', JSON.stringify(lojas));
         localStorage.setItem('totalEntregas', totalEntregas.toString());
@@ -156,10 +146,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         listaLojas.innerHTML = '';
-        lojas.forEach(loja => {
+        lojas.forEach((loja, index) => {
             const card = document.createElement('div');
             card.className = 'loja-card';
             card.innerHTML = `
+                <div class="delete-btn-container">
+                    <button class="btn-delete" onclick="deletarLoja(${index})">X</button>
+                </div>
                 <div class="loja-info">
                     <div class="loja-nome">${loja.nome}</div>
                     <div class="loja-valor">Valor fixo: R$ ${loja.valorFixo.toFixed(2)}</div>
@@ -177,5 +170,19 @@ document.addEventListener('DOMContentLoaded', function() {
         totalLojasSpan.textContent = lojas.length;
         totalEntregasSpan.textContent = totalEntregas;
         valorTotalSpan.textContent = `R$ ${valorTotal.toFixed(2)}`;
+    }
+
+    // Função para deletar loja
+    window.deletarLoja = function(index) {
+        if (confirm(`Tem certeza que deseja deletar a loja "${lojas[index].nome}"?`)) {
+            totalEntregas -= lojas[index].entregas;
+            valorTotal -= lojas[index].total;
+
+            lojas.splice(index, 1);
+            salvarDados();
+            atualizarSelectLojas();
+            atualizarListaLojas();
+            atualizarResumo();
+        }
     }
 });

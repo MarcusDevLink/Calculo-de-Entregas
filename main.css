@@ -193,3 +193,29 @@ button {
         margin-bottom: 10px;
     }
 }
+
+/* Adicione estas classes no seu CSS existente */
+.btn-delete {
+    background-color: var(--danger);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-left: 10px;
+}
+
+.btn-delete:hover {
+    background-color: #c0392b !important;
+}
+
+.loja-card {
+    position: relative; /* Adicionado para posicionar o botão */
+}
+
+.delete-btn-container {
+    position: absolute;
+    right: 0px;
+    top: 0px;
+}
