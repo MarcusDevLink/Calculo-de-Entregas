@@ -1,4 +1,4 @@
-/* CSS */
+/* Estilos base (Mobile First - até 640px) */
 :root {
     --primary: #2c3e50;
     --secondary: #e74c3c;
@@ -25,29 +25,31 @@ body {
 }
 
 .container {
-    max-width: 900px;
+    max-width: 100%;
     margin: 0 auto;
     background: white;
-    padding: 30px;
+    padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
+h1, h2 {
+    color: var(--primary);
+}
+
 h1 {
     text-align: center;
-    margin-bottom: 30px;
-    color: var(--primary);
+    margin-bottom: 20px;
 }
 
 h2 {
-    margin-bottom: 15px;
-    color: var(--primary);
-    font-size: 1.4rem;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
 }
 
 .form-section {
-    margin-bottom: 30px;
-    padding: 20px;
+    margin-bottom: 25px;
+    padding: 15px;
     background-color: var(--light);
     border-radius: 6px;
 }
@@ -71,21 +73,20 @@ input, select {
 }
 
 button {
-    padding: 10px 20px;
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    margin-bottom: 10px;
     border: none;
     border-radius: 4px;
-    font-size: 16px;
     cursor: pointer;
     transition: background-color 0.3s;
 }
 
+/* Botões */
 .btn-primary {
     background-color: var(--primary);
     color: white;
-}
-
-.btn-primary:hover {
-    background-color: #1a252f;
 }
 
 .btn-success {
@@ -93,17 +94,9 @@ button {
     color: white;
 }
 
-.btn-success:hover {
-    background-color: #219653;
-}
-
 .btn-danger {
     background-color: var(--danger);
     color: white;
-}
-
-.btn-danger:hover {
-    background-color: #c0392b;
 }
 
 .btn-secondary {
@@ -111,51 +104,102 @@ button {
     color: white;
 }
 
+.btn-primary:hover,
+.btn-success:hover,
+.btn-danger:hover,
 .btn-secondary:hover {
-    background-color: #1a252f;
+    opacity: 0.9;
 }
 
-.buttons-container {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-}
-
+/* Lista de lojas */
 .lojas-container {
     margin-top: 30px;
 }
 
 .loja-card {
-    background: white;
-    border: 1px solid #eee;
-    border-radius: 6px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
     padding: 15px;
-    margin-bottom: 15px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    position: relative;
 }
 
 .loja-info {
-    flex: 1;
+    margin-bottom: 10px;
 }
 
 .loja-nome {
     font-weight: bold;
     font-size: 18px;
-    margin-bottom: 5px;
 }
 
 .loja-valor {
     color: #555;
 }
 
-.loja-total {
-    font-weight: bold;
-    font-size: 20px;
+.loja-totais {
+    font-size: 16px;
 }
 
+.delete-btn-container {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.btn-delete {
+    background-color: var(--danger);
+    color: white;
+    padding: 5px 10px;
+    font-size: 14px;
+    border-radius: 4px;
+}
+
+.btn-delete:hover {
+    background-color: #c0392b !important;
+}
+
+.historico-container {
+    margin-top: 15px;
+    padding: 10px 15px;
+    background-color: #f8f9fa;
+    border-left: 4px solid #090229;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #333;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.historico-container strong {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--primary);
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.historico-container ul {
+    list-style-type: none;
+    padding-left: 0;
+    margin: 0;
+}
+
+.historico-container li {
+    padding: 6px 10px;
+    margin-bottom: 4px;
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    transition: background 0.2s ease;
+}
+
+.historico-container li:hover {
+    background-color: #e9f5ff;
+}
+
+/* Resumo */
 .summary {
     background-color: var(--light);
     padding: 20px;
@@ -167,55 +211,75 @@ button {
     display: flex;
     justify-content: space-between;
     margin-bottom: 10px;
-    font-size: 18px;
+    font-size: 16px;
 }
 
 .summary-item:last-child {
     font-weight: bold;
 }
 
-@media (max-width: 768px) {
+/* --------------------------- RESPONSIVIDADE --------------------------- */
+
+/* Tablet (641px até 1023px) */
+@media (min-width: 641px) and (max-width: 1023px) {
     .container {
-        padding: 15px;
+        padding: 25px;
     }
-    
+
+    .form-section {
+        padding: 20px;
+    }
+
+    .btn-delete {
+        font-size: 13px;
+    }
+
     .loja-card {
-        flex-direction: column;
-        align-items: flex-start;
+        padding: 20px;
     }
-    
+}
+
+/* Desktop (a partir de 1024px) */
+@media (min-width: 1024px) {
+    .container {
+        max-width: 900px;
+    }
+
     .buttons-container {
-        flex-direction: column;
+        display: flex;
+        justify-content: flex-start;
+        gap: 10px;
+        margin-bottom: 20px;
     }
-    
+
     button {
-        width: 100%;
-        margin-bottom: 10px;
+        width: auto;
+        margin-bottom: 0;
     }
-}
 
-/* Adicione estas classes no seu CSS existente */
-.btn-delete {
-    background-color: var(--danger);
-    color: white;
-    padding: 5px 10px;
-    border-radius: 4px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    margin-left: 10px;
-}
+    .form-section {
+        padding: 25px;
+    }
 
-.btn-delete:hover {
-    background-color: #c0392b !important;
-}
+    .loja-card {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+    }
 
-.loja-card {
-    position: relative; /* Adicionado para posicionar o botão */
-}
+    .loja-info,
+    .loja-totais,
+    .historico-container {
+        flex: 1 1 100%;
+        margin-top: 10px;
+    }
 
-.delete-btn-container {
-    position: absolute;
-    right: 0px;
-    top: 0px;
+    .loja-nome {
+        font-size: 20px;
+    }
+
+    .historico-container {
+        margin-top: 10px;
+    }
 }

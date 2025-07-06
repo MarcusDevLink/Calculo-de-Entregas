@@ -1,16 +1,18 @@
-document.addEventListener('DOMContentLoaded', function () {
-    const nomeLojaInput = document.getElementById('nomeLoja');
-    const valorFixoInput = document.getElementById('valorFixo');
-    const btnCadastrar = document.getElementById('btnCadastrar');
-    const selectLoja = document.getElementById('selectLoja');
-    const quantidadeInput = document.getElementById('quantidade');
-    const btnRegistrar = document.getElementById('btnRegistrar');
-    const btnResetar = document.getElementById('btnResetar');
-    const btnExportar = document.getElementById('btnExportar');
-    const listaLojas = document.getElementById('lista-lojas');
-    const totalLojasSpan = document.getElementById('total-lojas');
-    const totalEntregasSpan = document.getElementById('total-entregas');
-    const valorTotalSpan = document.getElementById('valor-total');
+$(document).ready(function () {
+    const $nomeLoja = $('#nomeLoja');
+    const $valorFixo = $('#valorFixo');
+    const $btnCadastrar = $('#btnCadastrar');
+    const $selectLoja = $('#selectLoja');
+    const $quantidade = $('#quantidade');
+    const $btnRegistrar = $('#btnRegistrar');
+    const $btnResetar = $('#btnResetar');
+    const $btnExportar = $('#btnExportar');
+    const $listaLojas = $('#lista-lojas');
+    const $totalLojas = $('#total-lojas');
+    const $totalEntregas = $('#total-entregas');
+    const $valorTotal = $('#valor-total');
+    const LIMITE_HISTORICO = 20;
+
 
     let lojas = JSON.parse(localStorage.getItem('lojas')) || [];
     let totalEntregas = parseInt(localStorage.getItem('totalEntregas')) || 0;
@@ -20,67 +22,82 @@ document.addEventListener('DOMContentLoaded', function () {
     atualizarListaLojas();
     atualizarResumo();
 
-    btnCadastrar.addEventListener('click', function () {
-        const nome = nomeLojaInput.value.trim();
-        const valor = parseFloat(valorFixoInput.value);
+    $btnCadastrar.on('click', function () {
+        const nome = $nomeLoja.val().trim();
+        const valor = parseFloat($valorFixo.val());
 
         if (!nome || isNaN(valor) || valor <= 0) {
-            alert('Por favor, preencha todos os campos corretamente.');
+            alert('Preencha todos os campos corretamente.');
             return;
         }
 
         if (lojas.some(loja => loja.nome.toLowerCase() === nome.toLowerCase())) {
-            alert('Uma loja com esse nome já está cadastrada!');
+            alert('Essa loja já está cadastrada!');
             return;
         }
 
-        const novaLoja = {
-            nome: nome,
+        lojas.push({
+            nome,
             valorFixo: valor,
             entregas: 0,
-            total: 0
-        };
+            total: 0,
+            historico: []
+        });
 
-        lojas.push(novaLoja);
         salvarDados();
         atualizarSelectLojas();
         atualizarListaLojas();
         atualizarResumo();
 
-        nomeLojaInput.value = '';
-        valorFixoInput.value = '';
-        nomeLojaInput.focus();
+        $nomeLoja.val('').focus();
+        $valorFixo.val('');
     });
 
-    btnRegistrar.addEventListener('click', function () {
-        const indiceLoja = selectLoja.selectedIndex - 1;
-        const quantidade = parseInt(quantidadeInput.value);
+    $('#btnRegistrar').on('click', function () {
+    const indiceLoja = $('#selectLoja').prop('selectedIndex') - 1;
+    const quantidade = parseInt($('#quantidade').val());
+    const modoSubtrair = $('#modoOperacao').val() === 'subtrair';
 
-        if (indiceLoja < 0 || indiceLoja >= lojas.length) {
-            alert('Por favor, selecione uma loja válida.');
+    if (indiceLoja < 0 || indiceLoja >= lojas.length || isNaN(quantidade) || quantidade <= 0) {
+        alert('Preencha os dados corretamente.');
+        return;
+    }
+
+    const loja = lojas[indiceLoja];
+    const dataAtual = new Date();
+    const timestamp = `${dataAtual.toLocaleDateString()} ${dataAtual.getHours().toString().padStart(2, '0')}:${dataAtual.getMinutes().toString().padStart(2, '0')}`;
+
+    if (modoSubtrair) {
+        if (loja.entregas < quantidade) {
+            alert('Não é possível subtrair mais entregas do que já existem.');
             return;
         }
+        loja.entregas -= quantidade;
+        loja.total -= quantidade * loja.valorFixo;
+        totalEntregas -= quantidade;
+        valorTotal -= quantidade * loja.valorFixo;
 
-        if (isNaN(quantidade) || quantidade <= 0) {
-            alert('Por favor, insira uma quantidade válida.');
-            return;
-        }
-
-        const loja = lojas[indiceLoja];
+        loja.historico.push(`- ${quantidade} entrega(s) - ${timestamp}`);
+    } else {
         loja.entregas += quantidade;
         loja.total += quantidade * loja.valorFixo;
         totalEntregas += quantidade;
         valorTotal += quantidade * loja.valorFixo;
 
-        salvarDados();
-        atualizarListaLojas();
-        atualizarResumo();
+        loja.historico.push(`+ ${quantidade} entrega(s) - ${timestamp}`);
+    }
 
-        quantidadeInput.value = '1';
-    });
+    if (loja.historico.length > LIMITE_HISTORICO ) loja.historico.shift();
 
-    btnResetar.addEventListener('click', function () {
-        if (confirm('Tem certeza que deseja resetar todos os dados? Esta ação não pode ser desfeita.')) {
+    salvarDados();
+    atualizarListaLojas();
+    atualizarResumo();
+    $('#quantidade').val('');
+});
+
+
+    $btnResetar.on('click', function () {
+        if (confirm('Deseja resetar todos os dados?')) {
             lojas = [];
             totalEntregas = 0;
             valorTotal = 0;
@@ -91,26 +108,27 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    btnExportar.addEventListener('click', function () {
+    $btnExportar.on('click', function () {
         if (lojas.length === 0) {
             alert('Não há dados para exportar.');
             return;
         }
 
-        let texto = 'Relatório de Entregas\n\n';
-        texto += 'Lojas cadastradas:\n\n';
+        let texto = 'Relatório de Entregas\n\nLojas:\n\n';
 
         lojas.forEach(loja => {
             texto += `${loja.nome}\n`;
-            texto += `Valor fixo: R$ ${loja.valorFixo.toFixed(2)}\n`;
-            texto += `Entregas realizadas: ${loja.entregas}\n`;
-            texto += `Total acumulado: R$ ${loja.total.toFixed(2)}\n\n`;
+            texto += `Valor Fixo: R$ ${loja.valorFixo.toFixed(2)}\n`;
+            texto += `Entregas: ${loja.entregas}\n`;
+            texto += `Total: R$ ${loja.total.toFixed(2)}\n`;
+            texto += `Últimos registros:\n`;
+            loja.historico.forEach(h => {
+                texto += ` - ${h.data} ${h.hora} - ${h.quantidade} entrega(s)\n`;
+            });
+            texto += '\n';
         });
 
-        texto += '\nResumo Geral:\n';
-        texto += `Total de lojas: ${lojas.length}\n`;
-        texto += `Total de entregas: ${totalEntregas}\n`;
-        texto += `Valor total: R$ ${valorTotal.toFixed(2)}\n`;
+        texto += `Resumo Geral:\nLojas: ${lojas.length}\nEntregas: ${totalEntregas}\nValor Total: R$ ${valorTotal.toFixed(2)}\n`;
 
         const blob = new Blob([texto], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
@@ -125,59 +143,77 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function salvarDados() {
         localStorage.setItem('lojas', JSON.stringify(lojas));
-        localStorage.setItem('totalEntregas', totalEntregas.toString());
-        localStorage.setItem('valorTotal', valorTotal.toString());
+        localStorage.setItem('totalEntregas', totalEntregas);
+        localStorage.setItem('valorTotal', valorTotal);
     }
 
     function atualizarSelectLojas() {
-        selectLoja.innerHTML = '<option value="">Selecione uma loja</option>';
-        lojas.forEach((loja, index) => {
-            const option = document.createElement('option');
-            option.value = index;
-            option.textContent = `${loja.nome} (R$ ${loja.valorFixo.toFixed(2)})`;
-            selectLoja.appendChild(option);
+        $selectLoja.html('<option value="">Selecione uma loja</option>');
+        lojas.forEach((loja, i) => {
+            $selectLoja.append(`<option value="${i}">${loja.nome} (R$ ${loja.valorFixo.toFixed(2)})</option>`);
         });
     }
 
     function atualizarListaLojas() {
+        $listaLojas.empty();
+
         if (lojas.length === 0) {
-            listaLojas.innerHTML = '<p class="no-data">Nenhuma loja cadastrada ainda.</p>';
+            $listaLojas.html('<p class="no-data">Nenhuma loja cadastrada ainda.</p>');
             return;
         }
 
-        listaLojas.innerHTML = '';
-        lojas.forEach((loja, index) => {
-            const card = document.createElement('div');
-            card.className = 'loja-card';
-            card.innerHTML = `
-                <div class="delete-btn-container">
-                    <button class="btn-delete" onclick="deletarLoja(${index})">X</button>
+        lojas.forEach((loja, i) => {
+            const $card = $(`
+                <div class="loja-card">
+                    <div class="delete-btn-container">
+                        <button class="btn-delete" data-index="${i}">X</button>
+                    </div>
+                    <div class="loja-info clickable" data-toggle="${i}">
+                        <div class="loja-nome">${loja.nome}</div>
+                        <div class="loja-valor">Valor fixo: R$ ${loja.valorFixo.toFixed(2)}</div>
+                    </div>
+                    <div class="loja-totais">
+                        <div>Entregas: ${loja.entregas}</div>
+                        <div>Total: R$ ${loja.total.toFixed(2)}</div>
+                    </div>
+                    <div class="historico-container" style="display: none;">
+                        <strong>Últimas Entregas:</strong>
+                        <ul>
+                            ${
+                                loja.historico.length === 0 
+                                ? '<li>Sem registros ainda.</li>' 
+                                : loja.historico.map(h => `<li>${h.data} | ${h.hora} — ${h.quantidade} entrega(s)</li>`).join('')
+                            }
+                        </ul>
+                    </div>
                 </div>
-                <div class="loja-info">
-                    <div class="loja-nome">${loja.nome}</div>
-                    <div class="loja-valor">Valor fixo: R$ ${loja.valorFixo.toFixed(2)}</div>
-                </div>
-                <div class="loja-totais">
-                    <div>Entregas: ${loja.entregas}</div>
-                    <div>Total: R$ ${loja.total.toFixed(2)}</div>
-                </div>
-            `;
-            listaLojas.appendChild(card);
+            `);
+
+            $listaLojas.append($card);
+        });
+
+        // Evento: deletar loja
+        $('.btn-delete').on('click', function () {
+            const index = $(this).data('index');
+            deletarLoja(index);
+        });
+
+        // Evento: mostrar/ocultar histórico com slideToggle
+        $('.loja-info.clickable').on('click', function () {
+            $(this).siblings('.historico-container').slideToggle(200);
         });
     }
 
     function atualizarResumo() {
-        totalLojasSpan.textContent = lojas.length;
-        totalEntregasSpan.textContent = totalEntregas;
-        valorTotalSpan.textContent = `R$ ${valorTotal.toFixed(2)}`;
+        $totalLojas.text(lojas.length);
+        $totalEntregas.text(totalEntregas);
+        $valorTotal.text(`R$ ${valorTotal.toFixed(2)}`);
     }
 
-    // Função para deletar loja
-    window.deletarLoja = function(index) {
+    function deletarLoja(index) {
         if (confirm(`Tem certeza que deseja deletar a loja "${lojas[index].nome}"?`)) {
             totalEntregas -= lojas[index].entregas;
             valorTotal -= lojas[index].total;
-
             lojas.splice(index, 1);
             salvarDados();
             atualizarSelectLojas();
